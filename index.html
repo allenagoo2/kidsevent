@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weekly Entry Tracker</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 20px;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .input-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .input-row input {
+      flex: 1;
+      padding: 10px;
+      font-size: 1em;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      font-size: 1em;
+      margin-bottom: 10px;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      margin: 5px 0;
+      padding: 8px;
+      background: #f0f0f0;
+      border-radius: 5px;
+    }
+    .nav-buttons {
+      display: flex;
+      justify-content: space-between;
+    }
+  </style>
+</head>
+<body>
+  <h2>Weekly Entry Tracker</h2>
+  <div class="input-row">
+    <input type="date" id="dateInput" />
+    <input type="text" id="textInput" placeholder="Enter details..." />
+  </div>
+  <button onclick="addEntry()">Submit</button>
+
+  <div class="nav-buttons">
+    <button onclick="changeWeek(-1)">⬅ Back</button>
+    <button onclick="changeWeek(1)">Next ➡</button>
+  </div>
+
+  <h3 id="weekLabel"></h3>
+  <ul id="entryList"></ul>
+
+  <script>
+    let entries = [];
+    let currentWeekOffset = 0;
+
+    function addEntry() {
+      const dateStr = document.getElementById('dateInput').value;
+      const text = document.getElementById('textInput').value.trim();
+      if (!dateStr || !text) return;
+
+      const parsedDate = new Date(dateStr);
+      if (isNaN(parsedDate)) {
+        alert("Invalid date format.");
+        return;
+      }
+
+      entries.push({ date: parsedDate, text });
+      entries.sort((a, b) => a.date - b.date);
+      document.getElementById('textInput').value = '';
+      document.getElementById('dateInput').value = '';
+      renderList();
+    }
+
+    function getWeekRange(offset) {
+      const now = new Date();
+      const start = new Date(now);
+      start.setDate(start.getDate() - start.getDay() + offset * 7);
+      const end = new Date(start);
+      end.setDate(start.getDate() + 7);
+      return { start, end };
+    }
+
+    function renderList() {
+      const { start, end } = getWeekRange(currentWeekOffset);
+      document.getElementById('weekLabel').textContent =
+        `Week of ${start.toDateString()} to ${end.toDateString()}`;
+
+      const list = document.getElementById('entryList');
+      list.innerHTML = '';
+      entries
+        .filter(e => e.date >= start && e.date < end)
+        .forEach(e => {
+          const li = document.createElement('li');
+          li.textContent = `${e.date.toDateString()}: ${e.text}`;
+          list.appendChild(li);
+        });
+    }
+
+    function changeWeek(offset) {
+      currentWeekOffset += offset;
+      renderList();
+    }
+
+    renderList();
+  </script>
+</body>
+</html>
